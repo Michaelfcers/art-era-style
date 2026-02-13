@@ -1,0 +1,18 @@
+# --- AI Core and Processing ---
+torch==2.7.1
+torchvision==0.22.1
+numpy==2.3.5
+pillow==12.0.0
+
+# --- Data Handling and Progress ---
+pandas==2.3.3
+tqdm==4.67.3
+
+# --- Visualization (Optional if you want to plot Loss) ---
+matplotlib==3.10.8
+seaborn==0.13.2
+
+# --- Web Server (Needed for Next.js) ---
+fastapi
+uvicorn
+python-multipart
