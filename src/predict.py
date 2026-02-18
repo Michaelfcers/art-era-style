@@ -3,6 +3,7 @@ import torch.nn as nn
 from torchvision import models, transforms
 from PIL import Image
 import os
+from huggingface_hub import hf_hub_download
 
 # --- CONFIGURATION ---
 CLASES = [
@@ -24,12 +25,11 @@ NAMES = [
     "Rococo", "Romanticism", "Symbolism", "Ukiyo-e"
 ]
 
-from huggingface_hub import hf_hub_download
-
 # --- CONFIGURATION ---
 REPO_ID = "michaelrodcs/art-style-convnext"
 FILENAME = "art-style-convnext.pth"          
 
+# Download the model from Hugging Face
 MODEL_PATH = hf_hub_download(repo_id=REPO_ID, filename=FILENAME)
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -60,7 +60,7 @@ def predecir(model, image_path):
             outputs = model(img_tensor)
             probs = torch.nn.functional.softmax(outputs[0], dim=0)
         
-        # Obtener los 3 mejores resultados
+        # Get top 3 results
         top_probs, top_indices = torch.topk(probs, 3)
         
         print("\nAnalysis results:")

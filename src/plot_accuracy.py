@@ -6,7 +6,7 @@ def plot_accuracy():
     sns.set_theme(style="whitegrid")
     plt.figure(figsize=(10, 6))
     
-    df = pd.read_csv('entrenamiento_log.txt', sep='|', skipinitialspace=True, skiprows=[1])
+    df = pd.read_csv('logs/v2_training_log.txt', sep='|', skipinitialspace=True, skiprows=[1])
     df.columns = [c.strip() for c in df.columns]
 
     # Convert to percentage if it is not

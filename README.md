@@ -15,19 +15,18 @@ The model and its optimized training data are hosted on Hugging Face for easy ac
 
 ---
 
-## 🚀 Training Strategy: Progressive Resolution
+## 🚀 Training Strategy: Bag of Tricks & Progressive High-Resolution
 
-To achieve a robust convergence and handle the high stylistic variance in art, I implemented a **Progressive Resizing Strategy** across three distinct phases:
+To achieve robust convergence and handle the extreme stylistic variance in art, I implemented a modern training regimen utilizing advanced data augmentation and a **Progressive Resizing Strategy**:
 
-1.  **Phase A (128px):** Initial training focused on capturing global shapes, color palettes, and basic spatial arrangements.
-2.  **Phase B (224px):** Fine-tuning at standard resolution to refine stylistic patterns and lighting effects.
-3.  **Phase C (256px):** Final polish phase to extract high-frequency features like brushstroke micro-textures and fine artist-specific details.
+1.  **Phase 1 - V2 Base (256px):** Initial robust training using a modern "Bag of Tricks". This phase utilized **Mixup** and **CutMix** (60% probability) to teach the model to recognize local brushstroke textures rather than just memorizing global compositions. Gradient Accumulation was used to simulate larger batch sizes on constrained VRAM.
+2.  **Phase 2 - V3-HD Fine-Tuning (384px):** A final high-resolution polish phase. By increasing the input resolution by 125% and dropping the learning rate, the model learned to extract high-frequency features and disambiguate micro-textures, separating visually similar styles.
 
 ---
 
 ## 📊 Performance & Results
 
-The final model achieved a **Top-1 Validation Accuracy of 68.76%**, which is highly competitive for a 21-class fine-grained art classification task.
+The final V3-HD model achieved a **Top-1 Validation Accuracy of 71.83%**, a highly competitive metric for a 21-class fine-grained art classification task involving 76k+ images.
 
 ### Training Metrics
 | Loss History (Convergence) | Accuracy Growth |
@@ -35,11 +34,11 @@ The final model achieved a **Top-1 Validation Accuracy of 68.76%**, which is hig
 | ![Loss History](./assets/loss_history.png) | ![Accuracy Evolution](./assets/accuracy_evolution.png) |
 
 ### Confusion Matrix Analysis
-The model excels at identifying styles with strong geometric or high-contrast signatures. For instance, **Cubism** reached **91% accuracy** and **Pop Art** hit **90%**.
+The model excels at identifying styles with strong geometric, highly stylized, or unique cultural signatures. For instance, **Ukiyo-e** reached **91% accuracy** and **Art Nouveau Modern** hit **86%**.
 
 ![Confusion Matrix](./assets/confusion_matrix_clean.png)
 
-> **Insight:** The model shows a slight historical ambiguity between *Realism* and *Impressionism*, mirroring the actual artistic transition between these movements in the late 19th century.
+> **Historical Insight:** The model shows semantic ambiguity between *Fauvism*, *Expressionism*, and *Post-Impressionism* (e.g., Fauvism overlaps 20% with Expressionism). Rather than a failure, this mirrors the actual artistic evolution of the late 19th and early 20th centuries, where these movements heavily shared unnatural color palettes and aggressive brushstroke techniques.
 
 ---
 
@@ -47,8 +46,9 @@ The model excels at identifying styles with strong geometric or high-contrast si
 
 * **Framework:** PyTorch & Torchvision.
 * **Architecture:** ConvNeXt-Tiny (Pre-trained on ImageNet-1K).
-* **Dataset:** Custom curated version of WikiArt (76k+ images).
-* **Optimization:** AdamW with Cosine Annealing Learning Rate Scheduler.
+* **Dataset:** Custom curated and cleaned version of WikiArt (76k+ images).
+* **Optimization:** AdamW with OneCycleLR Scheduler & Label Smoothing.
+* **Augmentation:** TrivialAugmentWide, Mixup, CutMix, RandomResizedCrop.
 * **Deployment Ready:** Integrated with Hugging Face Hub for cloud-based inference.
 
 ---
@@ -71,8 +71,4 @@ The model excels at identifying styles with strong geometric or high-contrast si
     python src/predict.py --image path/to/art.jpg
     ```
 
-
-
-
-
-**Developed by michaelrodcs** 
+**Developed by michaelrodcs**

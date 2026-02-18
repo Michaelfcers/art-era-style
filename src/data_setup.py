@@ -16,37 +16,64 @@ class ArtDataset(Dataset):
         return len(self.df)
     
     def __getitem__(self, idx):
+        # Since we already filtered in 'preparar_dataloaders', we should be safe here,
+        # but keeping a try-except just in case the file is corrupt (bytes = 0)
         row = self.df.iloc[idx]
         img_path = os.path.join(self.root_dir, os.path.normpath(row['filename']))
         label = self.map_estilos[row['estilo']]
+        
         try:
             image = Image.open(img_path).convert('RGB')
-        except:
-            image = Image.new('RGB', (224, 224)) # Fallback
+        except Exception as e:
+            # Emergency fallback: Random noise instead of black to avoid bias to 0
+            print(f"Warning: Corrupt image at {img_path}. Generating noise.")
+            image = Image.effect_noise((256, 256), 10) # Gaussian noise
+            image = image.convert('RGB')
+
         if self.transform:
             image = self.transform(image)
         return image, label
 
-def preparar_dataloaders(ruta_csv, ruta_imgs, img_size=224, batch_size=32):
+def preparar_dataloaders(ruta_csv, ruta_imgs, img_size=256, batch_size=8):
+    print("--- Preparing Data V2 ---")
     df = pd.read_csv(ruta_csv)
+    
+    # 1. Basic filters
     df = df[df['subset'] != 'uncertain artist']
     df['estilo'] = df['genre'].apply(lambda x: ast.literal_eval(x)[0])
     
-    # Initial cleanup: styles with more than 500 images
+    # 2. Minimum class filter
     conteo = df['estilo'].value_counts()
     estilos_validos = conteo[conteo > 500].index
     df = df[df['estilo'].isin(estilos_validos)].copy()
     
+    # 3. CRITICAL: Verify file existence BEFORE training
+    # This prevents the model from learning that "black square" = "impressionism"
+    print("Verifying image existence (this may take a few seconds)...")
+    def existe_archivo(filename):
+        ruta_completa = os.path.join(ruta_imgs, os.path.normpath(filename))
+        return os.path.exists(ruta_completa)
+    
+    df['existe'] = df['filename'].apply(existe_archivo)
+    n_borrados = len(df) - df['existe'].sum()
+    if n_borrados > 0:
+        print(f"Deleted {n_borrados} images that were not found on disk.")
+    df = df[df['existe']].copy()
+    
+    # Class mapping
     lista_clases = sorted(df['estilo'].unique().tolist())
     map_estilos = {estilo: i for i, estilo in enumerate(lista_clases)}
+    print(f"Total valid images: {len(df)} | Total Classes: {len(lista_clases)}")
     
+    # Split
     train_df = df.sample(frac=0.8, random_state=42)
     val_df = df.drop(train_df.index)
     
+    # Transformations V2
     train_transforms = transforms.Compose([
-        transforms.RandomResizedCrop(img_size, scale=(0.7, 1.0)),
+        transforms.RandomResizedCrop(img_size, scale=(0.6, 1.0)), # A bit more conservative scale for art
         transforms.RandomHorizontalFlip(),
-        transforms.ColorJitter(0.3, 0.3, 0.3),
+        transforms.TrivialAugmentWide(), 
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])

@@ -1,21 +1,29 @@
-# --- Modelos y Pesas (Pesados) ---
+ 
 *.pth
+*.pt
 *.pyh
-art-style-convnext.pth
-best_phase_A.pth
-best_phase_B.pth
-best_phase_B_cont.pth
+checkpoints/
 
-# --- Datasets y Archivos de Datos ---
+
 dataset_opt/
 dataset_opt.zip
+dataset400/
 *.csv
-classes.csv
-classes_clean.csv
 
-# --- Carpetas de Sistema y Cache ---
+
+logs/
+*.png
+*.jpg
+*.jpeg
+
 __pycache__/
-checkpoints/
+*.pyc
 .venv/
+env/
+venv/
 .env
+
 .vscode/
+.idea/
+.DS_Store
+Thumbs.db

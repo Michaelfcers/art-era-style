@@ -8,7 +8,7 @@ def plot_loss():
     plt.figure(figsize=(10, 6))
     
     # Read the log (adjust the separator if necessary)
-    df = pd.read_csv('entrenamiento_log.txt', sep='|', skipinitialspace=True, skiprows=[1])
+    df = pd.read_csv('logs/v2_training_log.txt', sep='|', skipinitialspace=True, skiprows=[1])
     df.columns = [c.strip() for c in df.columns]
 
     plt.plot(df['Fase-Ep'], df['Train Loss'], label='Train', color='#1f77b4', linewidth=2, marker='o', markersize=4)
