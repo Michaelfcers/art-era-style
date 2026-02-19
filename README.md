@@ -36,7 +36,7 @@ The final V3-HD model achieved a **Top-1 Validation Accuracy of 71.83%**, a high
 ### Confusion Matrix Analysis
 The model excels at identifying styles with strong geometric, highly stylized, or unique cultural signatures. For instance, **Ukiyo-e** reached **91% accuracy** and **Art Nouveau Modern** hit **86%**.
 
-![Confusion Matrix](./assets/confusion_matrix_clean.png)
+![Confusion Matrix](./assets/matrix_confusion_clean.png)
 
 > **Historical Insight:** The model shows semantic ambiguity between *Fauvism*, *Expressionism*, and *Post-Impressionism* (e.g., Fauvism overlaps 20% with Expressionism). Rather than a failure, this mirrors the actual artistic evolution of the late 19th and early 20th centuries, where these movements heavily shared unnatural color palettes and aggressive brushstroke techniques.
 
