@@ -12,7 +12,7 @@ dataset400/
 
 
 logs/
-*.png
+
 *.jpg
 *.jpeg
 
